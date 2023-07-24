@@ -1,0 +1,12 @@
+{
+	"id": "vigaro.npcsystem",
+	"name": "NPC System",
+	"version": "1.0.0",
+	"hide_version": false,
+	"authors": "Vigaro",
+	"description": "NPC System",
+	"requirements": ["pom"],
+	"requirements_names": ["POM"],
+	"checksum_override_version": false,
+	"tags": [ "Game Mechanics", "Dependency", "Tools" ]
+}

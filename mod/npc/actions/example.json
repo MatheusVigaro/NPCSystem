@@ -1,0 +1,78 @@
+{
+  "id": "Example_Talk",
+  "script": {
+    "type": "text",
+    "input": "hello there",
+    "duration": 120,
+    "next": {
+      "type": "text",
+      "input": "how are you doing",
+      "duration": 120,
+      "next": {
+        "type": "prompt",
+        "options": {
+          "abc" : {
+            "type": "sound",
+            "input": "SS_AI_Give_The_Mark_Boom",
+            "next": {
+              "type": "text",
+              "input": "ping"
+            }
+          },
+          "zxc" : {
+            "type": "music",
+            "input": "RW_86 - The Cycle",
+            "next": {
+              "type": "text",
+              "input": "cool weather, huh?",
+              "next": {
+                "type": "sound",
+                "input": "Apple"
+              }
+            }
+          },
+          "test 123 <LINE> asdf" : {
+            "type:": "text",
+            "input": ":3"
+          },
+          "test 312 \n asdf" : null,
+          "hello there" : null,
+          "what am I doing" : {
+            "type": "move",
+            "input": "300,300,0.5"
+          },
+          "eat spear" : {
+            "type": "consumeobject",
+            "input": "Spear",
+            "options": {
+              "true": {
+                "type": "text",
+                "input": "tasty spear!",
+                "next": {
+                  "type": "text",
+                  "input": "here, have a friend!",
+                  "next": {
+                    "type": "spawnobject",
+                    "input": "Scavenger"
+                  }
+                }
+              },
+              "false": {
+                "type": "text",
+                "input": "no spear :(",
+                "next": {
+                  "type": "text",
+                  "input": "here, have one, on the house!",
+                  "next": {
+                    "type": "spawnobject",
+                    "input": "Spear"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

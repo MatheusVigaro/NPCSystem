@@ -1,0 +1,20 @@
+{
+  "id": "hk_idle",
+  "default_duration": 3,
+  "startup_frames": [
+    "hk_idle_start1",
+    "hk_idle_start2"
+  ],
+  "frames": [
+    "hk_idle_1",
+    "hk_idle_2",
+    "hk_idle_3",
+    "hk_idle_4",
+    "hk_idle_5:40",
+    "hk_idle_6",
+    "hk_idle_7",
+    "hk_idle_8",
+    "hk_idle_9",
+    "hk_idle_10"
+  ]
+}
