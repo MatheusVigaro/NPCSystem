@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using HUD;
 using Music;
@@ -42,11 +43,18 @@ public class NPCObject : UpdatableAndDeletable, IDrawable
 
     private Action.Node action;
     private int actionTime;
+
+    private Dictionary<string, string> tempValues = new();
+    private NPCSaveData saveData;
     
     public NPCObject(PlacedObject placedObject, Room room)
     {
         this.placedObject = placedObject;
         this.room = room;
+        if (room.world.game.session is StoryGameSession session)
+        {
+            saveData = session.saveState.miscWorldSaveData.GetNPCSaveData();
+        }
         data = (placedObject.data as NPCData)!;
         NPC = NPCRegistry.GetNPC(data.NPC);
         idleAnimation = animation = AnimationRegistry.GetAnimation(NPC.IdleAnimation);
@@ -103,10 +111,7 @@ public class NPCObject : UpdatableAndDeletable, IDrawable
         switch (action.Type)
         {
             case NodeType.Prompt:
-                if (PromptMenu.CurrentPrompt == null)
-                {
-                    PromptMenu.CurrentPrompt = new PromptMenu(room.game.manager, this, action.Options);
-                }
+                PromptMenu.CurrentPrompt ??= new PromptMenu(room.game.manager, this, action.Options);
                 break;
             case NodeType.Move:
                 var input = action.Input.Split(',');
@@ -131,16 +136,21 @@ public class NPCObject : UpdatableAndDeletable, IDrawable
         actionTime = 0;
 
         if (newAction == null) return;
-        
+
         switch (action.Type)
         {
             case NodeType.Idle:
+            {
                 SetAnimation(idleAnimation);
                 break;
+            }
             case NodeType.Action:
+            {
                 SetAction(action.Input);
                 break;
+            }
             case NodeType.Music:
+            {
                 if (room.game.manager.musicPlayer.song != null)
                 {
                     room.game.manager.musicPlayer.song.StopAndDestroy();
@@ -151,21 +161,29 @@ public class NPCObject : UpdatableAndDeletable, IDrawable
                 {
                     stopAtGate = true,
                     stopAtDeath = true,
-                    fadeInTime = 1
+                    fadeInTime = 1,
+                    playWhenReady = true
                 };
-                room.game.manager.musicPlayer.song.playWhenReady = true;
                 break;
+            }
             case NodeType.Sound:
+            {
                 room.PlaySound(new SoundID(action.Input), 0, 1, 1);
                 break;
+            }
             case NodeType.Text:
+            {
                 Message(action.Input, action.Duration);
                 break;
+            }
             case NodeType.Animation:
+            {
                 SetAnimation(action.Input);
                 break;
+            }
             case NodeType.ConsumeObject:
             case NodeType.CheckObject:
+            {
                 var result = "false";
                 foreach (var obj in room.updateList.ToList())
                 {
@@ -176,6 +194,7 @@ public class NPCObject : UpdatableAndDeletable, IDrawable
                         {
                             obj.Destroy();
                         }
+
                         break;
                     }
                 }
@@ -184,9 +203,55 @@ public class NPCObject : UpdatableAndDeletable, IDrawable
                 {
                     SetAction(nextAction);
                 }
+
                 break;
+            }
             case NodeType.SpawnObject:
-                ObjectSpawner.AddToRoom(ObjectSpawner.CreateAbstractObjectSafe(new []{ action.Input }, room.abstractRoom, room.GetWorldCoordinate(pos)));
+            {
+                ObjectSpawner.AddToRoom(ObjectSpawner.CreateAbstractObjectSafe(new[] { action.Input }, room.abstractRoom, room.GetWorldCoordinate(pos)));
+                break;
+            }
+            case NodeType.SetValue:
+            {
+                var value = action.Input.Split(':');
+                saveData.Set(value[0], value[1]);
+                break;
+            }
+            case NodeType.GetValue:
+            {
+                if (saveData.TryGet<string>(action.Input, out var savedData) && action.Options.TryGetValue(savedData, out var result))
+                {
+                    SetAction(result);
+                }
+                else if (action.Options.TryGetValue("_", out result))
+                {
+                    SetAction(result);
+                }
+                break;
+            }
+            case NodeType.SetTempValue:
+            {
+                var value = action.Input.Split(':');
+                tempValues[value[0]] = value[1];
+                break;
+            }
+            case NodeType.GetTempValue:
+            {
+                if (tempValues.TryGetValue(action.Input, out var savedData) && action.Options.TryGetValue(savedData, out var result))
+                {
+                    SetAction(result);
+                }
+                else if (action.Options.TryGetValue("_", out result))
+                {
+                    SetAction(result);
+                }
+                break;
+            }
+            case NodeType.RNG:
+                if (action.Options.Count > 0)
+                {
+                    SetAction(action.Options.ToList()[Random.Range(0, action.Options.Count)].Value);
+                }
                 break;
         }
     }

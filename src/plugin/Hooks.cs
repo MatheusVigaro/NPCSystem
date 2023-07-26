@@ -9,12 +9,18 @@ public class Hooks
 {
     public static void Apply()
     {
+        //-- Prefix for atlas elements to prevent conflicts
         IL.FAtlas.LoadAtlasData += FAtlas_LoadAtlasData;
         
+        //-- Updating the PromptMenu
         On.RainWorldGame.Update += RainWorldGame_Update;
         On.RainWorldGame.GrafUpdate += RainWorldGame_GrafUpdate;
         
+        //-- Disabling inputs while PromptMenu is active
         On.Player.checkInput += Player_checkInput;
+        
+        //-- Save data stuff
+        SaveDataHooks.Apply();
     }
 
     private static void Player_checkInput(On.Player.orig_checkInput orig, Player self)

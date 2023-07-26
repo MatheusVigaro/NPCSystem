@@ -35,8 +35,49 @@
             "type:": "text",
             "input": ":3"
           },
-          "test 312 \n asdf" : null,
-          "hello there" : null,
+          "test 312 \n asdf" : {
+            "type": "rng",
+            "options": {
+              "a": {
+                "type": "text",
+                "input": "a"
+              },
+              "b": {
+                "type": "text",
+                "input": "b"
+              },
+              "c": {
+                "type": "text",
+                "input": "c"
+              },
+              "d": {
+                "type": "text",
+                "input": "d"
+              },
+              "e": {
+                "type": "text",
+                "input": "e"
+              }
+            }
+          },
+          "hello there" : {
+            "type": "getvalue",
+            "input": "metfriend",
+            "options": {
+              "yes": {
+                "type": "text",
+                "input": "hello there, old friend"
+              },
+              "_": {
+                "type": "text",
+                "input": "hello new friend!",
+                "next": {
+                  "type": "setvalue",
+                  "input": "metfriend:yes"
+                }
+              }
+            }
+          },
           "what am I doing" : {
             "type": "move",
             "input": "300,300,0.5"

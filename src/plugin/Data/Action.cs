@@ -30,6 +30,11 @@ public class Action
 
     public static class NodeType
     {
+        public const string SetTempValue = "settempvalue";
+        public const string GetTempValue = "gettempvalue";
+        public const string SetValue = "setvalue";
+        public const string GetValue = "getvalue";
+        public const string RNG = "rng";
         public const string CheckObject = "checkobject";
         public const string ConsumeObject = "consumeobject";
         public const string SpawnObject = "spawnobject";
