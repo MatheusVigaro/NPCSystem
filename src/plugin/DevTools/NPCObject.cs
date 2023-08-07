@@ -12,11 +12,11 @@ namespace NPCSystem.DevTools;
 
 public class NPCData : Pom.Pom.ManagedData
 {
-    public NPCID NPC => GetValue<NPCID>("NPC");
+    public NPCID NPC => GetValue<NPCID>(nameof(NPC));
 
-    public NPCData(PlacedObject owner) : base(owner, new []
+    public NPCData(PlacedObject owner) : base(owner, new Pom.Pom.ManagedField[]
     {
-        new Pom.Pom.ExtEnumField<NPCID>("NPC", NPCID.Example, displayName: "NPC")
+        new Pom.Pom.ExtEnumField<NPCID>(nameof(NPC), NPCID.Example, displayName: nameof(NPC))
     })
     {
     }
@@ -58,17 +58,16 @@ public class NPCObject : UpdatableAndDeletable, IDrawable
         data = (placedObject.data as NPCData)!;
         NPC = NPCRegistry.GetNPC(data.NPC);
         idleAnimation = animation = AnimationRegistry.GetAnimation(NPC.IdleAnimation);
-        
-        if (room.game.cameras[0].hud.dialogBox == null)
-        {
-            room.game.cameras[0].hud.InitDialogBox();
-        }
-
-        dialogBox = room.game.cameras[0].hud.dialogBox;
     }
 
     public override void Update(bool eu)
     {
+        if (room.game.cameras?.Length > 0 && room.game.cameras[0]?.hud != null && room.game.cameras[0].hud.dialogBox == null)
+        {
+            room.game.cameras[0].hud.InitDialogBox();
+            dialogBox = room.game.cameras[0].hud.dialogBox;
+        }
+
         if (room.PlayersInRoom.Count == 0)
         {
             action = null;
@@ -271,6 +270,12 @@ public class NPCObject : UpdatableAndDeletable, IDrawable
 
     private void Message(string text, int duration)
     {
+        if (dialogBox == null)
+        {
+            room.game.cameras[0].hud.InitDialogBox();
+            dialogBox = room.game.cameras[0].hud.dialogBox;
+        }
+
         dialogBox.messages.Add(new DialogBox.Message(text, dialogBox.defaultXOrientation, dialogBox.defaultYPos, 0)
         {
             linger = duration
