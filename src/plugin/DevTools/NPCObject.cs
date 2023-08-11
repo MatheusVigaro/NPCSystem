@@ -126,15 +126,15 @@ public class NPCObject : UpdatableAndDeletable, IDrawable
 
     public void SetAction(string newAction)
     {
-        SetAction(ActionRegistry.GetAction(newAction).Script);
+        SetAction(ActionRegistry.GetAction(newAction)?.Script);
     }
 
     public void SetAction(Action.Node newAction)
     {
+        if (newAction == null) return;
+
         action = newAction;
         actionTime = 0;
-
-        if (newAction == null) return;
 
         switch (action.Type)
         {

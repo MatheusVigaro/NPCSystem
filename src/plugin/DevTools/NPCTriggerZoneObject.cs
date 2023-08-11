@@ -1,8 +1,5 @@
-﻿using System;
-using System.Linq;
-using HUD;
+﻿using System.Linq;
 using UnityEngine;
-using NodeType = NPCSystem.Action.NodeType;
 
 namespace NPCSystem.DevTools;
 
@@ -13,9 +10,12 @@ public class NPCTriggerZoneData : Pom.Pom.ManagedData
     [Pom.Pom.Vector2Field("size", 100, 100, Pom.Pom.Vector2Field.VectorReprType.rect)]
     public Vector2 size;
 
+    [Pom.Pom.BooleanField("repeat", false, displayName: "Repeat?")]
+    public bool repeat;
+
     [Pom.Pom.BooleanField("oncePerCycle", false, displayName: "Once Per Cycle?")]
     public bool oncePerCycle;
-    
+
     [Pom.Pom.StringField("action", "", "Action")]
     public string action;
 
@@ -53,7 +53,7 @@ public class NPCTriggerZoneObject : UpdatableAndDeletable
             triggered = false;
         }
 
-        if (triggered) return;
+        if (triggered && !data.repeat) return;
         
         if (npcObject == null)
         {
@@ -73,16 +73,23 @@ public class NPCTriggerZoneObject : UpdatableAndDeletable
             data.size.y = -data.size.y;
             startPos.y -= data.size.y;
         }
+
+        var wasTriggered = triggered;
+        triggered = false;
         
         var affectedRect = new Rect(startPos, data.size);
         foreach (var player in room.PlayersInRoom)
         {
-            if (player.room == room && affectedRect.Contains(player.mainBodyChunk.pos))
+            if (player != null && player.room == room && affectedRect.Contains(player.mainBodyChunk.pos))
             {
-                npcObject.SetAction(data.action);
                 triggered = true;
-                return;
+                break;
             }
+        }
+
+        if (!wasTriggered && triggered)
+        {
+            npcObject.SetAction(data.action);
         }
     }
 }
