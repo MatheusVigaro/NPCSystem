@@ -20,6 +20,7 @@ public class ItemPO : PlayerCarryableItem, IPlayerEdible, IDrawable
     private Vector2 lastRotation;
     private int animationTime;
     private FAtlasElement currentSprite;
+    private LightSource lightSource;
 
     public Item Item => AbstractItem.Item;
     
@@ -59,6 +60,24 @@ public class ItemPO : PlayerCarryableItem, IPlayerEdible, IDrawable
         if (firstChunk.ContactPoint.y < 0)
         {
             rotation = (rotation - Custom.PerpendicularVector(rotation) * 0.1f * firstChunk.vel.x).normalized;
+        }
+        
+        if (lightSource != null)
+        {
+            lightSource.stayAlive = true;
+            lightSource.setPos = firstChunk.pos;
+            if (lightSource.slatedForDeletetion || room.Darkness(firstChunk.pos) == 0f)
+            {
+                lightSource = null;
+            }
+        }
+        else if (Item.GlowIntensity > 0 && room.Darkness(firstChunk.pos) > 0f)
+        {
+            lightSource = new LightSource(firstChunk.pos, environmentalLight: false, Item.GlowColor, this);
+            lightSource.requireUpKeep = true;
+            lightSource.setRad = Item.GlowIntensity;
+            lightSource.setAlpha = 1f;
+            room.AddObject(lightSource);
         }
 
         animationTime++;
@@ -102,6 +121,8 @@ public class ItemPO : PlayerCarryableItem, IPlayerEdible, IDrawable
         sLeaser.sprites = new FSprite[1];
 
         sLeaser.sprites[0] = new FSprite(Item.Sprite ?? Futile.atlasManager.GetElementWithName("pixel"));
+        sLeaser.sprites[0].scaleX = Item.SpriteScale;
+        sLeaser.sprites[0].scaleY = Mathf.Abs(Item.SpriteScale);
 
         AddToContainer(sLeaser, rCam, null);
     }

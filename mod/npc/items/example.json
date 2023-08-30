@@ -1,5 +1,7 @@
 {
   "id": "Example",
   "sprite": "example_item",
-  "collision_layer": 1
+  "collision_layer": 1 ,
+  "glow_color": "#ff0000",
+  "glow_intensity": 900
 }
