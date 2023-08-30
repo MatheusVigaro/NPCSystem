@@ -35,6 +35,9 @@ public class Item
     [JsonProperty("glow_intensity")]
     public float GlowIntensity;
 
+    [JsonProperty("always_glow")]
+    public bool AlwaysGlow;
+
     [JsonProperty("throwable")]
     public bool Throwable;
 

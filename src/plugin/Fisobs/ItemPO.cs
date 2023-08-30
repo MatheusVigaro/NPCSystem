@@ -66,12 +66,12 @@ public class ItemPO : PlayerCarryableItem, IPlayerEdible, IDrawable
         {
             lightSource.stayAlive = true;
             lightSource.setPos = firstChunk.pos;
-            if (lightSource.slatedForDeletetion || room.Darkness(firstChunk.pos) == 0f)
+            if (lightSource.slatedForDeletetion || (!Item.AlwaysGlow && room.Darkness(firstChunk.pos) == 0f))
             {
                 lightSource = null;
             }
         }
-        else if (Item.GlowIntensity > 0 && room.Darkness(firstChunk.pos) > 0f)
+        else if (Item.GlowIntensity > 0 && (Item.AlwaysGlow || room.Darkness(firstChunk.pos) > 0f))
         {
             lightSource = new LightSource(firstChunk.pos, environmentalLight: false, Item.GlowColor, this);
             lightSource.requireUpKeep = true;
@@ -145,7 +145,7 @@ public class ItemPO : PlayerCarryableItem, IPlayerEdible, IDrawable
         }
         
         sLeaser.sprites[0].SetPosition(pos);
-        sLeaser.sprites[0].rotation = Custom.VecToDeg(rot);
+        sLeaser.sprites[0].rotation = Custom.VecToDeg(rotation);
     }
     
     public void ApplyPalette(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, RoomPalette palette)
