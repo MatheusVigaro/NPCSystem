@@ -13,6 +13,9 @@ public class Action
     [JsonProperty("script")]
     public Node Script;
 
+    [JsonProperty("priority")]
+    public int Priority;
+
     public string ModID;
 
     public void Init()

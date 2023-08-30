@@ -44,7 +44,7 @@ public static class SpriteRegistry
                 var txtFile = Path.ChangeExtension(file, ".txt");
                 var prefix = Utils.GetAtlasPrefix(fileData.ModID);
 
-                var atlas = Utils.LoadAtlasOrImage($"{fileData.ModID}_npcsprites_{fileName}", fileNoExt, prefix, File.Exists(txtFile) ? fileNoExt : "");
+                var atlas = Utils.LoadAtlasOrImage(Utils.GetAtlasPrefix(fileData.ModID) + fileName, fileNoExt, prefix, File.Exists(txtFile) ? fileNoExt : "");
                 LoadedAtlases.Add(atlas);
             }
         }

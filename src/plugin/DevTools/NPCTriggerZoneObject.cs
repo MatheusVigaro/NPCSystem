@@ -62,6 +62,8 @@ public class NPCTriggerZoneObject : UpdatableAndDeletable
 
         if (npcObject == null) return;
 
+        if ((ActionRegistry.GetAction(data.action)?.Priority ?? 0) < npcObject.CurrentPriority) return;
+
         var startPos = pos;
         if (data.size.x < 0)
         {

@@ -11,6 +11,7 @@ public static class NPCEnums
         RuntimeHelpers.RunClassConstructor(typeof(ActionID).TypeHandle);
         RuntimeHelpers.RunClassConstructor(typeof(NPCID).TypeHandle);
         RuntimeHelpers.RunClassConstructor(typeof(AnimationID).TypeHandle);
+        RuntimeHelpers.RunClassConstructor(typeof(ItemID).TypeHandle);
     }
 }
 
@@ -32,12 +33,20 @@ public class NPCID : ExtEnum<NPCID>
     }
 }
 
-
 public class AnimationID : ExtEnum<AnimationID>
 {
     public static readonly AnimationID Example_Idle = new(nameof(Example_Idle), true);
    
     public AnimationID(string value, bool register = false) : base(value, register)
+    {
+    }
+}
+
+public class ItemID : ExtEnum<ItemID>
+{
+    public static readonly ItemID Example = new(nameof(Example), true);
+
+    public ItemID(string value, bool register = false) : base(value, register)
     {
     }
 }

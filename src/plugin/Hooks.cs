@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using UnityEngine;
@@ -21,6 +22,14 @@ public class Hooks
         
         //-- Save data stuff
         SaveDataHooks.Apply();
+        
+        //-- Make the CustomItem DevTools object able to be consumed
+        On.AbstractConsumable.IsTypeConsumable += AbstractConsumable_IsTypeConsumable;
+    }
+
+    private static bool AbstractConsumable_IsTypeConsumable(On.AbstractConsumable.orig_IsTypeConsumable orig, AbstractPhysicalObject.AbstractObjectType type)
+    {
+        return orig(type) || ItemRegistry.LoadedItems.Any(x => x.AbstractObjectType == type);
     }
 
     private static void Player_checkInput(On.Player.orig_checkInput orig, Player self)

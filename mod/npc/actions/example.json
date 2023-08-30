@@ -11,6 +11,10 @@
       "next": {
         "type": "prompt",
         "options": {
+          "custom item test" : {
+            "type": "spawnobject",
+            "input": ".Example"
+          },
           "abc" : {
             "type": "sound",
             "input": "SS_AI_Give_The_Mark_Boom",

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using HUD;
 using Music;
+using NPCSystem.Fisobs;
 using RWCustom;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -31,6 +32,7 @@ public class NPCData : Pom.Pom.ManagedData
 public class NPCObject : UpdatableAndDeletable, IDrawable
 {
     public NPC NPC;
+    public int CurrentPriority;
 
     private PlacedObject placedObject;
     private NPCData data;
@@ -132,7 +134,9 @@ public class NPCObject : UpdatableAndDeletable, IDrawable
 
     public void SetAction(string newAction)
     {
-        SetAction(ActionRegistry.GetAction(newAction)?.Script);
+        var act = ActionRegistry.GetAction(newAction);
+        CurrentPriority = act?.Priority ?? 0;
+        SetAction(act?.Script);
     }
 
     public void SetAction(Action.Node newAction)
@@ -190,9 +194,16 @@ public class NPCObject : UpdatableAndDeletable, IDrawable
             case NodeType.CheckObject:
             {
                 var result = "false";
+
+                Item item = null;
+                if (action.Input.StartsWith("."))
+                {
+                    item = ItemRegistry.GetItem(action.Input.TrimStart('.'));
+                }
+
                 foreach (var obj in room.updateList.ToList())
                 {
-                    if (obj.GetType().Name.Equals(action.Input))
+                    if ((item != null && obj is ItemPO itemPO && itemPO.Item.ID == item.ID) || obj.GetType().Name.Equals(action.Input))
                     {
                         result = "true";
                         if (action.Type == NodeType.ConsumeObject)
@@ -213,7 +224,16 @@ public class NPCObject : UpdatableAndDeletable, IDrawable
             }
             case NodeType.SpawnObject:
             {
-                ObjectSpawner.AddToRoom(ObjectSpawner.CreateAbstractObjectSafe(new[] { action.Input }, room.abstractRoom, room.GetWorldCoordinate(pos)));
+                if (action.Input.StartsWith("."))
+                {
+                    var item = ItemRegistry.GetItem(action.Input.TrimStart('.'));
+                    ObjectSpawner.AddToRoom(new AbstractItem(room.world, item, room.GetWorldCoordinate(pos), new EntityID()));
+                }
+                else
+                {
+                    ObjectSpawner.AddToRoom(ObjectSpawner.CreateAbstractObjectSafe(action.Input.Split(','), room.abstractRoom, room.GetWorldCoordinate(pos)));
+                }
+
                 break;
             }
             case NodeType.SetValue:

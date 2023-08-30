@@ -56,10 +56,12 @@ public class Plugin : BaseUnityPlugin
             
             NPCEnums.Init();
             Hooks.Apply();
-            InitRegistries();
+            
+            ReloadRegistries();
             
             Pom.Pom.RegisterManagedObject<NPCObject, NPCData, Pom.Pom.ManagedRepresentation>("NPC", "NPC");
             Pom.Pom.RegisterManagedObject<NPCTriggerZoneObject, NPCTriggerZoneData, Pom.Pom.ManagedRepresentation>("NPCTriggerZone", "NPC");
+            Pom.Pom.RegisterManagedObject<CustomItemObjectSpawner, CustomItemData, Pom.Pom.ManagedRepresentation>("CustomItem", "NPC");
             
             ObjectSpawner.RegisterSafeSpawners();
         }
@@ -84,19 +86,13 @@ public class Plugin : BaseUnityPlugin
         }
     }
 
+    //-- TODO: Could properly implement hot reloading at some point, it is called only during init for now
     public void ReloadRegistries()
     {
         SpriteRegistry.Reload();
         AnimationRegistry.Reload();
         NPCRegistry.Reload();
         ActionRegistry.Reload();
-    }
-    
-    public void InitRegistries()
-    {
-        SpriteRegistry.Init();
-        AnimationRegistry.Init();
-        NPCRegistry.Init();
-        ActionRegistry.Init();
+        ItemRegistry.Reload();
     }
 }

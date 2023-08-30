@@ -1,0 +1,5 @@
+{
+  "id": "Example",
+  "sprite": "example_item",
+  "collision_layer": 1
+}

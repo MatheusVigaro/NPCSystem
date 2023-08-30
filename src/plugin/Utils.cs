@@ -8,6 +8,7 @@ namespace NPCSystem;
 public static class Utils
 {
     private const string AtlasPrefix = "NPCSprite";
+    private const string ItemPrefix = "NPCItem";
 
     public static string AtlasElementPrefix;
     
@@ -18,13 +19,9 @@ public static class Utils
             return Futile.atlasManager.GetAtlasWithName(name);
         }
 
-        var shouldLoadAsSingleImage = dataPath == "";
+        var shouldLoadAsSingleImage = string.IsNullOrEmpty(dataPath);
 
-        if (shouldLoadAsSingleImage)
-        {
-            name = elementPrefix + name;
-        }
-        else
+        if (!shouldLoadAsSingleImage)
         {
             AtlasElementPrefix = elementPrefix;
         }
@@ -75,6 +72,8 @@ public static class Utils
     }
 
     public static string GetAtlasPrefix(string modId) => $"{AtlasPrefix}_{modId}_";
+
+    public static string GetItemPrefix(string modId) => $"{ItemPrefix}_{modId}_";
 
     public class ModPath
     {
