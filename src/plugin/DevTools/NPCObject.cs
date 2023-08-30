@@ -14,6 +14,12 @@ public class NPCData : Pom.Pom.ManagedData
 {
     public NPCID NPC => GetValue<NPCID>(nameof(NPC));
 
+    [Pom.Pom.FloatField(nameof(scale), -5, 5, 1, 0.01f, displayName: "Scale")]
+    public float scale;
+
+    [Pom.Pom.IntegerField(nameof(rotation), -180, 180, 0, Pom.Pom.ManagedFieldWithPanel.ControlType.slider, "Rotation")]
+    public int rotation;
+
     public NPCData(PlacedObject owner) : base(owner, new Pom.Pom.ManagedField[]
     {
         new Pom.Pom.ExtEnumField<NPCID>(nameof(NPC), NPCID.Example, displayName: nameof(NPC))
@@ -301,6 +307,10 @@ public class NPCObject : UpdatableAndDeletable, IDrawable
         {
             sLeaser.sprites[0].element = currentSprite;
         }
+
+        sLeaser.sprites[0].rotation = data.rotation;
+        sLeaser.sprites[0].scaleX = data.scale;
+        sLeaser.sprites[0].scaleY = Mathf.Abs(data.scale);
         sLeaser.sprites[0].SetPosition(pos - camPos);
     }
 
