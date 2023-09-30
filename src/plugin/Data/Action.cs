@@ -33,6 +33,7 @@ public class Action
 
     public static class NodeType
     {
+        public const string Kill = "kill";
         public const string SetTempValue = "settempvalue";
         public const string GetTempValue = "gettempvalue";
         public const string SetValue = "setvalue";

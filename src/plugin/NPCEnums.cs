@@ -1,4 +1,6 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Linq;
+using System.Runtime.CompilerServices;
+using RWCustom;
 
 namespace NPCSystem;
 
@@ -12,6 +14,11 @@ public static class NPCEnums
         RuntimeHelpers.RunClassConstructor(typeof(NPCID).TypeHandle);
         RuntimeHelpers.RunClassConstructor(typeof(AnimationID).TypeHandle);
         RuntimeHelpers.RunClassConstructor(typeof(ItemID).TypeHandle);
+
+        foreach (var shader in Custom.rainWorld.Shaders.Keys.OrderBy(x => x))
+        {
+            _ = new ShaderID(shader, true);
+        } 
     }
 }
 
@@ -47,6 +54,13 @@ public class ItemID : ExtEnum<ItemID>
     public static readonly ItemID Example = new(nameof(Example), true);
 
     public ItemID(string value, bool register = false) : base(value, register)
+    {
+    }
+}
+
+public class ShaderID : ExtEnum<ShaderID>
+{
+    public ShaderID(string value, bool register = false) : base(value, register)
     {
     }
 }

@@ -145,7 +145,7 @@ public class ItemPO : PlayerCarryableItem, IPlayerEdible, IDrawable
         }
         
         sLeaser.sprites[0].SetPosition(pos);
-        sLeaser.sprites[0].rotation = Custom.VecToDeg(rotation);
+        sLeaser.sprites[0].rotation = Custom.VecToDeg(rot);
     }
     
     public void ApplyPalette(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, RoomPalette palette)

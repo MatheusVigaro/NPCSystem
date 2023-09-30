@@ -5,8 +5,8 @@
 	"hide_version": false,
 	"authors": "Vigaro",
 	"description": "NPC System",
-	"requirements": ["pom"],
-	"requirements_names": ["POM"],
+	"requirements": ["pom", "fisobs"],
+	"requirements_names": ["POM", "Fisobs"],
 	"checksum_override_version": false,
 	"tags": [ "Game Mechanics", "Dependency", "Tools" ]
 }

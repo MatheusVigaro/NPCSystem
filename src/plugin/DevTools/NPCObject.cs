@@ -21,6 +21,9 @@ public class NPCData : Pom.Pom.ManagedData
     [Pom.Pom.IntegerField(nameof(rotation), -180, 180, 0, Pom.Pom.ManagedFieldWithPanel.ControlType.slider, "Rotation")]
     public int rotation;
 
+    [Pom.Pom.ExtEnumField<ShaderID>(nameof(shader), "Basic", displayName: "Shader")]
+    public ShaderID shader;
+
     public NPCData(PlacedObject owner) : base(owner, new Pom.Pom.ManagedField[]
     {
         new Pom.Pom.ExtEnumField<NPCID>(nameof(NPC), NPCID.Example, displayName: nameof(NPC))
@@ -31,6 +34,9 @@ public class NPCData : Pom.Pom.ManagedData
 
 public class NPCObject : UpdatableAndDeletable, IDrawable
 {
+    private const int MainSprite = 0;
+    private const int KillSprite = 1;
+    
     public NPC NPC;
     public int CurrentPriority;
 
@@ -54,6 +60,10 @@ public class NPCObject : UpdatableAndDeletable, IDrawable
 
     private Dictionary<string, string> tempValues = new();
     private NPCSaveData saveData;
+
+    private float killFac;
+    private float lastKillFac;
+    private Creature killTarget;
     
     public NPCObject(PlacedObject placedObject, Room room)
     {
@@ -70,6 +80,28 @@ public class NPCObject : UpdatableAndDeletable, IDrawable
 
     public override void Update(bool eu)
     {
+        lastKillFac = killFac;
+
+        if (killTarget != null)
+        {
+            killFac += 0.025f;
+            if (killFac >= 1f)
+            {
+                killTarget.mainBodyChunk.vel += Custom.RNV() * 12f;
+                for (var k = 0; k < 20; k++)
+                {
+                    room.AddObject(new Spark(killTarget.mainBodyChunk.pos, Custom.RNV() * Random.value * 40f, new Color(1f, 1f, 1f), null, 30, 120));
+                }
+                killTarget.Die();
+                killTarget = null;
+                killFac = 0f;
+            }
+        }
+        else
+        {
+            killFac = 0;
+        }
+
         if (room.game.cameras?.Length > 0 && room.game.cameras[0]?.hud != null && room.game.cameras[0].hud.dialogBox == null)
         {
             room.game.cameras[0].hud.InitDialogBox();
@@ -215,7 +247,7 @@ public class NPCObject : UpdatableAndDeletable, IDrawable
                     }
                 }
 
-                if (action.Options.TryGetValue(result, out var nextAction))
+                if (action.Options.TryGetValue(result, out var nextAction) || ("false".Equals(result) && action.Options.TryGetValue("_", out nextAction)))
                 {
                     SetAction(nextAction);
                 }
@@ -278,6 +310,26 @@ public class NPCObject : UpdatableAndDeletable, IDrawable
                     SetAction(action.Options.ToList()[Random.Range(0, action.Options.Count)].Value);
                 }
                 break;
+            case NodeType.Kill:
+            {
+                var result = "false";
+                foreach (var crit in room.updateList.ToList().OfType<Creature>())
+                {
+                    if (crit.GetType().Name.Equals(action.Input))
+                    {
+                        killTarget = crit;
+                        result = "true";
+                        break;
+                    }
+                }
+
+                if (action.Options.TryGetValue(result, out var nextAction) || ("false".Equals(result) && action.Options.TryGetValue("_", out nextAction)))
+                {
+                    SetAction(nextAction);
+                }
+
+                break;
+            }
         }
     }
 
@@ -314,24 +366,47 @@ public class NPCObject : UpdatableAndDeletable, IDrawable
 
     public void InitiateSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)
     {
-        sLeaser.sprites = new FSprite[1];
+        sLeaser.sprites = new FSprite[2];
 
-        sLeaser.sprites[0] = new FSprite("pixel");
-        
+        sLeaser.sprites[MainSprite] = new FSprite("pixel");
+        sLeaser.sprites[KillSprite] = new FSprite("Futile_White")
+        {
+            shader = rCam.game.rainWorld.Shaders["FlatLight"]
+        };
+
         AddToContainer(sLeaser, rCam, rCam.ReturnFContainer(NPC.Container ?? "Midground"));
     }
 
     public void DrawSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, Vector2 camPos)
     {
+        var mainSprite = sLeaser.sprites[MainSprite];
+        var killSprite = sLeaser.sprites[KillSprite];
+        
         if (currentSprite != null)
         {
-            sLeaser.sprites[0].element = currentSprite;
+            sLeaser.sprites[MainSprite].element = currentSprite;
         }
 
-        sLeaser.sprites[0].rotation = data.rotation;
-        sLeaser.sprites[0].scaleX = data.scale;
-        sLeaser.sprites[0].scaleY = Mathf.Abs(data.scale);
-        sLeaser.sprites[0].SetPosition(pos - camPos);
+        mainSprite.rotation = data.rotation;
+        mainSprite.scaleX = data.scale;
+        mainSprite.scaleY = Mathf.Abs(data.scale);
+        mainSprite.SetPosition(pos - camPos);
+        mainSprite.shader = Custom.rainWorld.Shaders[data.shader.value];
+
+        if (killFac > 0 && killTarget != null)
+        {
+            killSprite.isVisible = true;
+
+            killSprite.x = Mathf.Lerp(killTarget.mainBodyChunk.lastPos.x, killTarget.mainBodyChunk.pos.x, timeStacker) - camPos.x;
+            killSprite.y = Mathf.Lerp(killTarget.mainBodyChunk.lastPos.y, killTarget.mainBodyChunk.pos.y, timeStacker) - camPos.y;
+            var f = Mathf.Lerp(lastKillFac, killFac, timeStacker);
+            killSprite.scale = Mathf.Lerp(200f, 2f, Mathf.Pow(f, 0.5f));
+            killSprite.alpha = Mathf.Pow(f, 3f);
+        }
+        else
+        {
+            killSprite.isVisible = false;
+        }
     }
 
     public void ApplyPalette(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, RoomPalette palette)
@@ -344,5 +419,7 @@ public class NPCObject : UpdatableAndDeletable, IDrawable
         {
             newContatiner.AddChild(sprite);
         }
+
+        rCam.ReturnFContainer("Shortcuts").AddChild(sLeaser.sprites[KillSprite]);
     }
 }
