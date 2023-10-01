@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Run in RainWorld": {
+      "commandName": "Executable",
+      "executablePath": "G:\\Steam\\steamapps\\common\\Rain World\\RainWorld.exe",
+      "workingDirectory": "G:\\Steam\\steamapps\\common\\Rain World\\",
+      "nativeDebugging": false
+    }
+  }
+}
