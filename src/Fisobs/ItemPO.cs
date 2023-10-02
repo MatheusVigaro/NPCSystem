@@ -8,7 +8,7 @@ public class ItemPO : PlayerCarryableItem, IPlayerEdible, IDrawable
 {
     public int BitesLeft => bites;
     public int FoodPoints => Item.FoodPoints;
-    public bool Edible => Item.FoodPoints > 0;
+    public bool Edible => Item.Edible || Item.FoodPoints > 0;
     public bool AutomaticPickUp => Item.AutomaticPickup;
 
     public readonly AbstractItem AbstractItem;

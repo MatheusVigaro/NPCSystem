@@ -44,6 +44,9 @@ public class Item
     [JsonProperty("automatic_pickup")]
     public bool AutomaticPickup;
     
+    [JsonProperty("edible")]
+    public bool Edible;
+
     [JsonProperty("food_points")]
     public int FoodPoints;
 
