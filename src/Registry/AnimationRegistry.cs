@@ -52,9 +52,9 @@ public static class AnimationRegistry
                     animation.Init();
                     LoadedAnimations.Add(animation);
                 }
-                catch
+                catch (Exception ex)
                 {
-                    Debug.LogError($"Error when parsing animation file ({file})");
+                    Debug.LogError($"Error when parsing animation file ({file}){Environment.NewLine}{StackTraceUtility.ExtractStringFromException(ex)}");
                 }
             }
         }
