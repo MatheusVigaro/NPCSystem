@@ -52,9 +52,9 @@ public static class NPCRegistry
                     npc.Init();
                     LoadedNPCs.Add(npc);
                 }
-                catch
+                catch (Exception ex)
                 {
-                    Debug.LogError($"Error when parsing NPC file ({file})");
+                    Debug.LogError($"Error when parsing NPC file ({file}){Environment.NewLine}{StackTraceUtility.ExtractStringFromException(ex)}");
                 }
             }
         }

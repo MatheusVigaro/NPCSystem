@@ -52,9 +52,9 @@ public static class ActionRegistry
                     action.Init();
                     LoadedActions.Add(action);
                 }
-                catch
+                catch (Exception ex)
                 {
-                    Debug.LogError($"Error when parsing action file ({file})");
+                    Debug.LogError($"Error when parsing action file ({file}){Environment.NewLine}{StackTraceUtility.ExtractStringFromException(ex)}");
                 }
             }
         }
