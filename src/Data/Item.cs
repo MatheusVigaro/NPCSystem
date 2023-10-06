@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System.IO;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using UnityEngine;
 
@@ -107,22 +108,7 @@ public class Item
 
             if (Glimmer)
             {
-                var rect = Sprite.sourceRect;
-                var glimmerTexture = new Texture2D((int)rect.width, (int)rect.height, TextureFormat.ARGB32, false);
-                var colors = ((Texture2D)Sprite.atlas.texture).GetPixels((int)rect.x, (int)rect.y, (int)rect.width, (int)rect.height);
-
-                for (var i = 0; i < colors.Length; i++)
-                {
-                    if (colors[i].a > 0)
-                    {
-                        colors[i] = Color.white;
-                    }
-                }
-                
-                glimmerTexture.SetPixels(colors);
-                glimmerTexture.Apply();
-
-                GlimmerSprite = Futile.atlasManager.LoadAtlasFromTexture(ElementPrefix + "__glimmer__" + _sprite, glimmerTexture, false)._elements[0];
+                Futile.atlasManager._allElementsByName.TryGetValue(ElementPrefix + _sprite + "_glimmer", out GlimmerSprite);
             }
         }
 

@@ -195,12 +195,14 @@ public class ItemPO : PlayerCarryableItem, IPlayerEdible, IDrawable
         
         mainSprite.SetPosition(pos);
         mainSprite.rotation = Custom.VecToDeg(rot);
+        mainSprite.color = color;
 
         if (Item.Glimmer)
         {
             var currentGlimmer = Mathf.Lerp(lastGlimmer, glimmer, timeStacker);
 
-            glimmerSprite.SetPosition(mainSprite.GetPosition());
+            glimmerSprite.x = mainSprite.x;
+            glimmerSprite.y = mainSprite.y;
             glimmerSprite.rotation = mainSprite.rotation;
             glimmerSprite.alpha = Mathf.Lerp(1.3f, 0.5f, darkness) * currentGlimmer;
 
@@ -216,7 +218,7 @@ public class ItemPO : PlayerCarryableItem, IPlayerEdible, IDrawable
     
     public void ApplyPalette(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, RoomPalette palette)
     {
-         sLeaser.sprites[0].color = Color.Lerp(Color.white, palette.blackColor, darkness);
+        color = Color.Lerp(Color.white, palette.blackColor, darkness);
     }
 
     public void AddToContainer(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, FContainer newContatiner)
