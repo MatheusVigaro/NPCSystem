@@ -22,6 +22,12 @@ public class ItemPO : PlayerCarryableItem, IPlayerEdible, IDrawable
     private FAtlasElement currentSprite;
     private LightSource lightSource;
 
+    private float lastGlimmer;
+    private float glimmer;
+    private float glimmerProg;
+    private float glimmerSpeed;
+    private int glimmerWait;
+
     public Item Item => AbstractItem.Item;
     
     private Animation animation => Item.Animation;
@@ -35,6 +41,8 @@ public class ItemPO : PlayerCarryableItem, IPlayerEdible, IDrawable
         bodyChunks[0] = new BodyChunk(this, 0, abstractPhysicalObject.Room.realizedRoom.MiddleOfTile(abstractPhysicalObject.pos.Tile), Item.Radius, Item.Mass);
              
         bodyChunkConnections = Array.Empty<BodyChunkConnection>();
+
+        glimmerProg = 1;
 
         airFriction = Item.AirFriction;
         gravity = Item.Gravity;
@@ -50,6 +58,27 @@ public class ItemPO : PlayerCarryableItem, IPlayerEdible, IDrawable
         base.Update(eu);
 
         lastRotation = rotation;
+        lastGlimmer = glimmer;
+
+        if (Item.Glimmer)
+        {
+            glimmer = Mathf.Sin(glimmerProg * Mathf.PI) * UnityEngine.Random.value;
+
+            if (glimmerProg < 1f)
+            {
+                glimmerProg = Mathf.Min(1f, glimmerProg + glimmerSpeed);
+            }
+            else if (glimmerWait > 0)
+            {
+                glimmerWait--;
+            }
+            else
+            {
+                glimmerWait = UnityEngine.Random.Range(20, 40);
+                glimmerProg = 0f;
+                glimmerSpeed = 1f / Mathf.Lerp(5f, 15f, UnityEngine.Random.value);
+            }
+        }
 
         if (grabbedBy.Count > 0)
         {
@@ -118,17 +147,37 @@ public class ItemPO : PlayerCarryableItem, IPlayerEdible, IDrawable
 
     public void InitiateSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam)
     {
-        sLeaser.sprites = new FSprite[1];
+        sLeaser.sprites = new FSprite[3];
 
-        sLeaser.sprites[0] = new FSprite(Item.Sprite ?? Futile.atlasManager.GetElementWithName("pixel"));
-        sLeaser.sprites[0].scaleX = Item.SpriteScale;
-        sLeaser.sprites[0].scaleY = Mathf.Abs(Item.SpriteScale);
+        sLeaser.sprites[0] = new FSprite(Item.Sprite ?? Futile.atlasManager.GetElementWithName("pixel"))
+        {
+            scaleX = Item.SpriteScale,
+            scaleY = Mathf.Abs(Item.SpriteScale)
+        };
+
+        sLeaser.sprites[1] = new FSprite(Item.GlimmerSprite ?? Futile.atlasManager.GetElementWithName("pixel"))
+        {
+            scaleX = Item.SpriteScale,
+            scaleY = Mathf.Abs(Item.SpriteScale),
+            isVisible = Item.Glimmer
+        };
+        
+        sLeaser.sprites[2] = new FSprite("Futile_White")
+        {
+            shader = rCam.game.rainWorld.Shaders["FlatLightBehindTerrain"],
+            isVisible = Item.Glimmer
+        };
+
 
         AddToContainer(sLeaser, rCam, null);
     }
 
     public void DrawSprites(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, float timeStacker, Vector2 camPos)
     {
+        var mainSprite = sLeaser.sprites[0];
+        var glimmerSprite = sLeaser.sprites[1];
+        var glimmerGlow = sLeaser.sprites[2];
+        
         var pos = Vector2.Lerp(firstChunk.lastPos, firstChunk.pos, timeStacker) - camPos;
         var rot = Vector3.Slerp(lastRotation, rotation, timeStacker);
 
@@ -141,11 +190,28 @@ public class ItemPO : PlayerCarryableItem, IPlayerEdible, IDrawable
 
         if (currentSprite != null)
         {
-            sLeaser.sprites[0].element = currentSprite;
+            mainSprite.element = currentSprite;
         }
         
-        sLeaser.sprites[0].SetPosition(pos);
-        sLeaser.sprites[0].rotation = Custom.VecToDeg(rot);
+        mainSprite.SetPosition(pos);
+        mainSprite.rotation = Custom.VecToDeg(rot);
+
+        if (Item.Glimmer)
+        {
+            var currentGlimmer = Mathf.Lerp(lastGlimmer, glimmer, timeStacker);
+
+            glimmerSprite.SetPosition(mainSprite.GetPosition());
+            glimmerSprite.rotation = mainSprite.rotation;
+            glimmerSprite.alpha = Mathf.Lerp(1.3f, 0.5f, darkness) * currentGlimmer;
+
+            //-- 20/16 comes from the original code, 6 is the size of the pearl sprite, we divided by it and multiply by our sprite to get the size for our glimmer
+            var currentScale = currentGlimmer * 20f / 16f / 6f;
+
+            glimmerGlow.SetPosition(mainSprite.GetPosition());
+            glimmerGlow.rotation = mainSprite.rotation;
+            glimmerGlow.scale = Item.SpriteScale * Item.Sprite.sourceRect.width * currentScale;
+            glimmerGlow.alpha = currentGlimmer * 0.5f;
+        }
     }
     
     public void ApplyPalette(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, RoomPalette palette)
@@ -156,10 +222,20 @@ public class ItemPO : PlayerCarryableItem, IPlayerEdible, IDrawable
     public void AddToContainer(RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, FContainer newContatiner)
     {
         newContatiner ??= rCam.ReturnFContainer("Items");
-        foreach (var sprite in sLeaser.sprites)
+        for (var i = 0; i < sLeaser.sprites.Length; i++)
         {
+            var sprite = sLeaser.sprites[i];
             sprite.RemoveFromContainer();
-            newContatiner.AddChild(sprite);
+            
+            //-- Glimmer glow
+            if (i == 2)
+            {
+                rCam.ReturnFContainer("Foreground").AddChild(sprite);
+            }
+            else
+            {
+                newContatiner.AddChild(sprite);
+            }
         }
     }
 }

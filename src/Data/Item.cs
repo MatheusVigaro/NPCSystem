@@ -87,8 +87,12 @@ public class Item
     [JsonProperty("collision_layer")]
     public int CollisionLayer = 2;
 
+    [JsonProperty("glimmer")]
+    public bool Glimmer;
+
     public Animation Animation;
     public FAtlasElement Sprite;
+    public FAtlasElement GlimmerSprite;
     public AbstractPhysicalObject.AbstractObjectType AbstractObjectType;
     public string ModID;
 
@@ -100,6 +104,26 @@ public class Item
         if (!string.IsNullOrEmpty(_sprite))
         {
             Sprite = Futile.atlasManager.GetElementWithName(ElementPrefix + _sprite);
+
+            if (Glimmer)
+            {
+                var rect = Sprite.sourceRect;
+                var glimmerTexture = new Texture2D((int)rect.width, (int)rect.height, TextureFormat.ARGB32, false);
+                var colors = ((Texture2D)Sprite.atlas.texture).GetPixels((int)rect.x, (int)rect.y, (int)rect.width, (int)rect.height);
+
+                for (var i = 0; i < colors.Length; i++)
+                {
+                    if (colors[i].a > 0)
+                    {
+                        colors[i] = Color.white;
+                    }
+                }
+                
+                glimmerTexture.SetPixels(colors);
+                glimmerTexture.Apply();
+
+                GlimmerSprite = Futile.atlasManager.LoadAtlasFromTexture(ElementPrefix + "__glimmer__" + _sprite, glimmerTexture, false)._elements[0];
+            }
         }
 
         if (_animation != null)

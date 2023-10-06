@@ -38,8 +38,12 @@ public class CustomItemObjectSpawner : UpdatableAndDeletable
         if (slatedForDeletetion) return;
 
         var placedObjectIndex = room.roomSettings.placedObjects.IndexOf(placedObject);
-        
-        if (room.game.session is StoryGameSession session && session.saveState.ItemConsumed(room.world, false, room.abstractRoom.index, placedObjectIndex)) return;
+
+        if (room.game.session is StoryGameSession session && session.saveState.ItemConsumed(room.world, false, room.abstractRoom.index, placedObjectIndex))
+        {
+            Destroy();
+            return;
+        }
 
         var consumableData = new PlacedObject.ConsumableObjectData(placedObject)
         {
