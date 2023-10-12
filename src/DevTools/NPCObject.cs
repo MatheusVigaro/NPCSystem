@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using HUD;
 using Music;
@@ -209,7 +208,15 @@ public class NPCObject : UpdatableAndDeletable, IDrawable
             }
             case NodeType.Sound:
             {
-                room.PlaySound(new SoundID(action.Input), 0, 1, 1);
+                var sound = SoundRegistry.GetSound(action.Input, NPC.ModID);
+
+                if (sound == null)
+                {
+                    ExtEnumBase.TryParse(typeof(SoundID), action.Input, true, out var result);
+                    sound = result as SoundID;
+                }
+
+                room.PlaySound(sound, 0, 1, 1);
                 break;
             }
             case NodeType.Text:
@@ -354,7 +361,7 @@ public class NPCObject : UpdatableAndDeletable, IDrawable
             dialogBox = room.game.cameras[0].hud.dialogBox;
         }
 
-        dialogBox.messages.Add(new DialogBox.Message(text, dialogBox.defaultXOrientation, dialogBox.defaultYPos, 0)
+        dialogBox.messages.Add(new MessageWithSound(text, dialogBox.defaultXOrientation, dialogBox.defaultYPos, 0, NPC.Voice, NPC.VoicePitchMin, NPC.VoicePitchMax)
         {
             linger = duration
         });

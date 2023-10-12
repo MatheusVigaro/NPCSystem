@@ -1,7 +1,7 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
+using RWCustom;
 using UnityEngine;
 
 namespace NPCSystem;
@@ -25,6 +25,32 @@ public class Hooks
         
         //-- Make the CustomItem DevTools object able to be consumed
         On.AbstractConsumable.IsTypeConsumable += AbstractConsumable_IsTypeConsumable;
+        
+        //-- Play NPC voices
+        On.HUD.DialogBox.Update += DialogBox_Update;
+    }
+
+    private static void DialogBox_Update(On.HUD.DialogBox.orig_Update orig, HUD.DialogBox self)
+    {
+        var lastCharacter = self.showCharacter;
+        orig(self);
+
+        if (self.showCharacter > lastCharacter &&
+            self.CurrentMessage is MessageWithSound message &&
+            message.soundID != null &&
+            (message.currentSound == null || message.currentSound.Done) &&
+            Custom.rainWorld.processManager.currentMainLoop is RainWorldGame game &&
+            message.text.Substring(lastCharacter, self.showCharacter - lastCharacter).Any(char.IsLetterOrDigit))
+        {
+            var mic = game.cameras[0].virtualMicrophone;
+            
+            var soundData = mic.GetSoundData(message.soundID, -1);
+            if (mic.SoundClipReady(soundData))
+            {
+                message.currentSound = new VirtualMicrophone.DisembodiedSound(mic, soundData, 0, 1, Random.Range(message.pitchMin, message.pitchMax), false, 0);
+                mic.soundObjects.Add(message.currentSound);
+            }
+        }
     }
 
     private static bool AbstractConsumable_IsTypeConsumable(On.AbstractConsumable.orig_IsTypeConsumable orig, AbstractPhysicalObject.AbstractObjectType type)

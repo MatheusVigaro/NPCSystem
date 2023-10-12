@@ -90,6 +90,7 @@ public class Plugin : BaseUnityPlugin
     {
         SpriteRegistry.Reload();
         AnimationRegistry.Reload();
+        SoundRegistry.Reload();
         NPCRegistry.Reload();
         ActionRegistry.Reload();
         ItemRegistry.Reload();

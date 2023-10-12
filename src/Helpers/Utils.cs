@@ -8,6 +8,7 @@ public static class Utils
 {
     private const string AtlasPrefix = "NPCSprite";
     private const string ItemPrefix = "NPCItem";
+    private const string SoundPrefix = "NPCSound";
 
     public static string AtlasElementPrefix;
     
@@ -73,6 +74,12 @@ public static class Utils
     public static string GetAtlasPrefix(string modId) => $"{AtlasPrefix}_{modId}_";
 
     public static string GetItemPrefix(string modId) => $"{ItemPrefix}_{modId}_";
+    
+    public static string GetSoundPrefix(string modId) => $"{SoundPrefix}-{modId.Replace('_', '-')}|";
+
+    public static string RemoveSoundPrefix(string soundID) => soundID.Split('|').Last();
+
+    public static bool IsSoundOurs(string fileName) => SoundRegistry.LoadedSounds.Values.Any(x => Path.GetFileNameWithoutExtension(x) == fileName);
 
     public class ModPath
     {
