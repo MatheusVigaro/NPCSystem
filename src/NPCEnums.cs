@@ -14,6 +14,7 @@ public static class NPCEnums
         RuntimeHelpers.RunClassConstructor(typeof(NPCID).TypeHandle);
         RuntimeHelpers.RunClassConstructor(typeof(AnimationID).TypeHandle);
         RuntimeHelpers.RunClassConstructor(typeof(ItemID).TypeHandle);
+        RuntimeHelpers.RunClassConstructor(typeof(OperationID).TypeHandle);
 
         foreach (var shader in Custom.rainWorld.Shaders.Keys.OrderBy(x => x))
         {
@@ -61,6 +62,20 @@ public class ItemID : ExtEnum<ItemID>
 public class ShaderID : ExtEnum<ShaderID>
 {
     public ShaderID(string value, bool register = false) : base(value, register)
+    {
+    }
+}
+
+public class OperationID : ExtEnum<OperationID>
+{
+    public static readonly OperationID Equal = new("=", true);
+    public static readonly OperationID Different = new("!=", true);
+    public static readonly OperationID Greater = new(">", true);
+    public static readonly OperationID GreaterEqual = new(">=", true);
+    public static readonly OperationID Less = new("<", true);
+    public static readonly OperationID LessEqual = new("<=", true);
+
+    public OperationID(string value, bool register = false) : base(value, register)
     {
     }
 }

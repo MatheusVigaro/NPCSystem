@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -80,6 +81,23 @@ public static class Utils
     public static string RemoveSoundPrefix(string soundID) => soundID.Split('|').Last();
 
     public static bool IsSoundOurs(string fileName) => SoundRegistry.LoadedSounds.Values.Any(x => Path.GetFileNameWithoutExtension(x) == fileName);
+
+    public static bool LogicOperation(OperationID operation, string valueA, string valueB)
+    {
+        float.TryParse(valueA, out var floatA);
+        float.TryParse(valueB, out var floatB);
+
+        return operation.value switch
+        {
+            "=" => valueA.Equals(valueB, StringComparison.InvariantCultureIgnoreCase),
+            "!=" => !valueA.Equals(valueB, StringComparison.InvariantCultureIgnoreCase),
+            ">" => floatA > floatB,
+            ">=" => floatA >= floatB,
+            "<" => floatA < floatB,
+            "<=" => floatA <= floatB,
+            _ => false
+        };
+    }
 
     public class ModPath
     {

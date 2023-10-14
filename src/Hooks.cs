@@ -1,8 +1,10 @@
 ﻿using System.Linq;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
+using NPCSystem.DevTools;
 using RWCustom;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace NPCSystem;
 
@@ -28,6 +30,37 @@ public class Hooks
         
         //-- Play NPC voices
         On.HUD.DialogBox.Update += DialogBox_Update;
+        
+        //-- Variable filter
+        On.RoomSettings.LoadPlacedObjects += RoomSettings_LoadPlacedObjects;
+    }
+
+    private static void RoomSettings_LoadPlacedObjects(On.RoomSettings.orig_LoadPlacedObjects orig, RoomSettings self, string[] s, SlugcatStats.Name playerchar)
+    {
+        orig(self, s, playerchar);
+
+        if (Custom.rainWorld.processManager.currentMainLoop is not RainWorldGame game || game.session is not StoryGameSession session) return;
+
+        var saveData = session.saveState.miscWorldSaveData.GetNPCSaveData();
+        var filters = self.placedObjects.Where(x => x.data is VariableFilterData && x.active).ToArray();
+
+        foreach (var filter in filters)
+        {
+            var filterData = (VariableFilterData)filter.data;
+
+            saveData.TryGet<string>(filterData.variable, out var savedValue);
+
+            //-- Don't deactivate the objects if the condition is satisfied
+            if (Utils.LogicOperation(filterData.operation, savedValue, filterData.value)) continue;
+
+            foreach (var placedObj in self.placedObjects.Where(x => x.active && x.deactivattable && x.data is not VariableFilterData))
+            {
+                if (Custom.DistLess(placedObj.pos, filter.pos, filterData.size.x))
+                {
+                    placedObj.active = false;
+                }
+            }
+        }
     }
 
     private static void DialogBox_Update(On.HUD.DialogBox.orig_Update orig, HUD.DialogBox self)

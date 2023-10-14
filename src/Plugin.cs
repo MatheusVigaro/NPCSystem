@@ -61,6 +61,7 @@ public class Plugin : BaseUnityPlugin
             Pom.Pom.RegisterManagedObject<NPCObject, NPCData, Pom.Pom.ManagedRepresentation>("NPC", "NPC");
             Pom.Pom.RegisterManagedObject<NPCTriggerZoneObject, NPCTriggerZoneData, Pom.Pom.ManagedRepresentation>("NPCTriggerZone", "NPC");
             Pom.Pom.RegisterManagedObject<CustomItemObjectSpawner, CustomItemData, Pom.Pom.ManagedRepresentation>("CustomItem", "NPC");
+            Pom.Pom.RegisterEmptyObjectType<VariableFilterData, Pom.Pom.ManagedRepresentation>("VariableFilter", "NPC");
             
             ObjectSpawner.RegisterSafeSpawners();
         }
