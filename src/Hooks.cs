@@ -15,6 +15,9 @@ public class Hooks
         //-- Prefix for atlas elements to prevent conflicts
         IL.FAtlas.LoadAtlasData += FAtlas_LoadAtlasData;
         
+        //-- Making sure there isn't a leftover UI when starting a new game
+        On.RainWorldGame.ctor += RainWorldGame_ctor;
+        
         //-- Updating the PromptMenu
         On.RainWorldGame.Update += RainWorldGame_Update;
         On.RainWorldGame.GrafUpdate += RainWorldGame_GrafUpdate;
@@ -90,6 +93,14 @@ public class Hooks
     {
         return orig(type) || ItemRegistry.LoadedItems.Any(x => x.AbstractObjectType == type);
     }
+
+    private static void RainWorldGame_ctor(On.RainWorldGame.orig_ctor orig, RainWorldGame self, ProcessManager processManager)
+    {
+        PromptMenu.CurrentPrompt = null;
+
+        orig(self, processManager);
+    }
+
 
     private static void Player_checkInput(On.Player.orig_checkInput orig, Player self)
     {
