@@ -96,6 +96,7 @@ public class Hooks
 
     private static void RainWorldGame_ctor(On.RainWorldGame.orig_ctor orig, RainWorldGame self, ProcessManager processManager)
     {
+        PromptMenu.CurrentPrompt?.Exit();
         PromptMenu.CurrentPrompt = null;
 
         orig(self, processManager);
