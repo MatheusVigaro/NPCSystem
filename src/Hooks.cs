@@ -116,7 +116,7 @@ public class Hooks
     private static void RainWorldGame_GrafUpdate(On.RainWorldGame.orig_GrafUpdate orig, RainWorldGame self, float timestacker)
     {
         orig(self, timestacker);
-        if (self.paused) return;
+        if (self.GamePaused) return;
 
         PromptMenu.CurrentPrompt?.GrafUpdate(timestacker);
     }
@@ -124,7 +124,7 @@ public class Hooks
     private static void RainWorldGame_Update(On.RainWorldGame.orig_Update orig, RainWorldGame self)
     {
         orig(self);
-        if (self.paused) return;
+        if (self.GamePaused) return;
         
         PromptMenu.CurrentPrompt?.Update();
     }
