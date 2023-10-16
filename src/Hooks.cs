@@ -115,19 +115,17 @@ public class Hooks
     private static void RainWorldGame_GrafUpdate(On.RainWorldGame.orig_GrafUpdate orig, RainWorldGame self, float timestacker)
     {
         orig(self, timestacker);
-        if (PromptMenu.CurrentPrompt != null)
-        {
-            PromptMenu.CurrentPrompt.GrafUpdate(timestacker);
-        }
+        if (self.paused) return;
+
+        PromptMenu.CurrentPrompt?.GrafUpdate(timestacker);
     }
 
     private static void RainWorldGame_Update(On.RainWorldGame.orig_Update orig, RainWorldGame self)
     {
         orig(self);
-        if (PromptMenu.CurrentPrompt != null)
-        {
-            PromptMenu.CurrentPrompt.Update();
-        }
+        if (self.paused) return;
+        
+        PromptMenu.CurrentPrompt?.Update();
     }
 
     private static void FAtlas_LoadAtlasData(ILContext il)
