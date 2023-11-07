@@ -6,10 +6,10 @@ public class CustomItemData : Pom.Pom.ManagedData
 {
     public ItemID Item => GetValue<ItemID>(nameof(Item));
 
-    [Pom.Pom.IntegerField(nameof(minCycles), 0, 9, 0, Pom.Pom.ManagedFieldWithPanel.ControlType.slider, "Min Cycles")]
+    [Pom.Pom.IntegerField(nameof(minCycles), 0, 50, 0, Pom.Pom.ManagedFieldWithPanel.ControlType.slider, "Min Cycles")]
     public int minCycles;
 
-    [Pom.Pom.IntegerField(nameof(maxCycles), 0, 9, 0, Pom.Pom.ManagedFieldWithPanel.ControlType.slider, "Max Cycles")]
+    [Pom.Pom.IntegerField(nameof(maxCycles), 0, 50, 0, Pom.Pom.ManagedFieldWithPanel.ControlType.slider, "Max Cycles")]
     public int maxCycles;
     
     public CustomItemData(PlacedObject owner) : base(owner, new Pom.Pom.ManagedField[]
